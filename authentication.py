@@ -1,11 +1,24 @@
 import json
 import re
+import sqlite3
 
 class Auth:
-    def __init__(self):
+    def __init__(self,database_path):
         self.database = {
             "users": []
         }  # Simulated database
+        self.db_path = database_path
+        self.conn = sqlite3.connect(database_path)
+        self.c = self.conn.cursor()
+
+    def add_to_database(self, user_data):
+        try:
+            self.c.execute("INSERT INTO USERS(username,email,password) VALUES (?,?,?)"),
+            (user_data['username'],user_data['email'],user_data['password'])
+            self.conn.commit()
+            return json.dumps({'status':'success','message':'user added to database.'})
+        except sqlite3.Error as e:
+            return json.dumps({'status':'fail','message':f'error adding to database {e}'})
 
     def is_username_unique(self, username):
         for user in self.database["users"]:
@@ -45,3 +58,37 @@ class Auth:
             return False, "Password must contain at least one special character (@#&$)."
         return True,""
     
+    
+    def sign_up(self, username, email, password):
+        is_valid, msg = self.validate_username(username)
+        if not is_valid:
+            return json.dumps({"status": "fail", "message": msg})
+        
+        is_valid, msg = self.validate_email(email)
+        if not is_valid:
+            return json.dumps({"status": "fail", "message": msg})
+
+        is_valid, msg = self.validate_password(password)
+        if not is_valid:
+            return json.dumps({"status": "fail", "message": msg})
+        
+
+        user_data = {
+            "username": username,
+            "email": email,
+            "password": password,
+        }
+
+        return self.add_to_database(user_data)
+
+    def login(self, username, password):
+        try:
+            self.c.execute("SELECT * FROM USERS WHERE username = ? AND password = ?", (username, password))
+            user = self.c.fetchone()
+            if user:
+                return json.dumps({'status':'success','message':'Login successful.'})
+            else:
+                return json.dumps({'status':'fail','message':'Invalid username or password.'})
+        except sqlite3.Error as e:
+            return json.dumps({'status':'fail','message':f'Error logging in: {e}'})
+
