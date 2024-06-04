@@ -17,6 +17,11 @@ class Wallet:
                 query = "UPDATE bank_accounts SET balance = %s WHERE card_number = %s"
                 self.cursor.execute(query, (new_balance, card_number))
                 self.conn.commit()
+                with open('transaction.log', 'a') as f:
+                    f.write(f"Card Number: {card_number}\n")
+                    f.write(f"Amount: {amount}\n")
+                    f.write(f"Transaction Info: {info}\n")
+                    f.write("\n")
 
     def charge_wallet(self, user_id, amount):
         query = "UPDATE Wallets SET Balance = Balance + %s WHERE UserID = %s"
