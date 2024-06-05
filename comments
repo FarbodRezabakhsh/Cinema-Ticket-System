@@ -1,0 +1,59 @@
+class Commentget:
+    def __init__(self):
+        self.comments = []
+        self.current_id = 1
+    
+    def get_comment(self):
+        comment = input("Enter your comment: ")
+        comment_id = self.assign_id()
+        self.comments.append({'id': comment_id, 'comment': comment, 'replies': []})
+    
+    def assign_id(self):
+        comment_id = str(self.current_id)  # ID as string
+        self.current_id += 1
+        return comment_id
+    
+    def show_comments(self):
+        for entry in self.comments:
+            print(f"ID: {entry['id']}")
+            print(f"Comment: {entry['comment']}")
+            print('-' * 20)
+            if entry['replies']:
+                for reply in entry['replies']:
+                    print(f"  Reply ID: {reply['id']}")
+                    print(f"  Reply: {reply['reply']}")
+                    print('-' * 20)
+                    
+    def delete_comment(self, comment_id):
+        for comment in self.comments:
+            if comment['id'] == comment_id:
+                self.comments.remove(comment)
+                print(f"Comment with ID {comment_id} and all its replies have been deleted.")
+                return
+        
+        print("Comment with this ID not found.")
+                    
+class Reply:
+    def __init__(self, comment_handler):
+        self.comment_handler = comment_handler
+        self.current_reply_id = 1
+
+    def reply_to_comment(self, comment_id):
+        reply_text = input("Enter your reply: ")
+        reply_id = self.assign_reply_id()
+
+        for comment in self.comment_handler.comments:
+            if comment['id'] == comment_id:
+                comment['replies'].append({'id': reply_id, 'reply': reply_text})
+                return
+
+        print("Comment with this ID not found.")
+    
+    def assign_reply_id(self):
+        reply_id = str(self.current_reply_id)  # ID as string
+        self.current_reply_id += 1
+        return reply_id
+
+
+
+
