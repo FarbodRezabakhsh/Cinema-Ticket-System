@@ -1,6 +1,7 @@
 import mysql.connector
 
 class Wallet:
+
     def add_bank_account(self, user_id, card_number, password, cvv2, balance):
         query = "INSERT INTO Wallets (CardNumber, WalletPassword, CVV2, Balance, UserID) VALUES (%s, %s, %s, %s, %s)"
         self.cursor.execute(query, (card_number, password, cvv2, balance, user_id))
@@ -13,29 +14,24 @@ class Wallet:
         self.conn.commit()
     
      
-      
     def get_transaction(self, card_number, password, cvv2, amount, info):
-            query = "SELECT balance FROM wallet WHERE card_number = %s AND password = %s AND cvv2 = %s"
-            self.cursor.execute(query, (card_number, password, cvv2))
-            result = self.cursor.fetchone()
-            if result:
-                balance = result[0]
-                if balance >= amount:
-                    new_balance = balance - amount
-                    query = "UPDATE wallet SET balance = %s WHERE card_number = %s AND password = %s AND cvv2 = %s"
-                    self.cursor.execute(query, (new_balance, card_number, password, cvv2))
-                    self.conn.commit()
-                    with open('transaction.log', 'a') as f:
-                        f.write(f"Card Number: {card_number}\n")
-                        f.write(f"Amount: {amount}\n")
-                        f.write(f"Transaction Info: {info}\n")
-                        f.write("\n")    
+        query = "SELECT Balance FROM Wallets WHERE CardNumber = %s AND WalletPassword = %s AND CVV2 = %s"
+        self.cursor.execute(query, (card_number, password, cvv2))
+        result = self.cursor.fetchone()
+        if result:
+            balance = result[0]
+            if balance >= amount:
+                new_balance = balance - amount
+                query = "UPDATE Wallets SET Balance = %s WHERE CardNumber = %s AND WalletPassword = %s AND CVV2 = %s"
+                self.cursor.execute(query, (new_balance, card_number, password, cvv2))
+                self.conn.commit()
+                with open('transaction.log', 'a') as f:
+                    f.write(f"Card Number: {card_number}\n")
+                    f.write(f"Amount: {amount}\n")
+                    f.write(f"Transaction Info: {info}\n")
+                    f.write("\n")
+     
           
-      
-      
-      
-      
-      
       
       
       
