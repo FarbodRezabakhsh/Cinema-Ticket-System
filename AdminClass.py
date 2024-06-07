@@ -2,13 +2,14 @@ from sql_connecter import *
 from SalonClass import Salon
 from FilmScreeningClass import FilmScreening
 from MovieClass import Movie
+from Define_FilmScreening_Handeling import Define_FilmScreening_Handeling
+from ErrorHandeling import *
 
 class Admin:
     '''    
-    A class to represent a person.
+    A class to represent Admin.
 
-    Attributes
-    ----------
+    Attributes:
     UserID : int
     '''
     def __init__(self , UserID):
@@ -33,8 +34,15 @@ class Admin:
         New_Movie.Define_Movie()
 
     def Define_FilmScreening(self, MovieID, SalonID, ShowDate):
-        New_FilmScreening = FilmScreening('DEFAULT', MovieID, SalonID, ShowDate)
-        New_FilmScreening.Define_FilmScreening()
+        '''
+        Creat New_FilmScreening Obj And Call Define_FilmScreening Method from FilmScreening Class.
+        If There is interference return you can't do that!
+        '''
+        try:
+            New_FilmScreening = FilmScreening('DEFAULT', MovieID, SalonID, ShowDate)
+            New_FilmScreening.Define_FilmScreening()
+        except Define_FilmScreening_Error:
+            return "There is interference. you can't do that!"
     
     def Delete_Salon(self, SalonID):
         Old_Salon = Salon(SalonID, None, None, None)
@@ -49,19 +57,17 @@ class Admin:
         Old_FilmScreening.Delete_FilmScreening()
     
     def Get_All_Movies(self):
-        querry = ('''SELECT * 
+        querry = ('''SELECT *
                 FROM Movies''')
         return Get(querry)
 
     def Get_All_Salons(self):
-        querry = ('''SELECT * 
+        querry = ('''SELECT *
                     FROM Salons''')
         return Get(querry)
    
     def Get_All_FilmScreenings(self):
-        querry = ('''SELECT * 
+        querry = ('''SELECT *
                 FROM FilmScreenings''')
+
         return Get(querry)
-
-
-

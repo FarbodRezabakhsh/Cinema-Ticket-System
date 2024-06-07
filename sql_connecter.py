@@ -15,6 +15,5 @@ def Exe(querry , val):
 def Get(querry):
   mycursor = mydb.cursor()
   mycursor.execute(querry)
-
   myresult = mycursor.fetchall()
   return(myresult)

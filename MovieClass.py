@@ -23,6 +23,9 @@ class Movie:
         Exe(querry, val)
 
     def Delete_Movie(self):
+        '''
+        Delete from Movies Table Old_Movie
+        '''
         querry = '''DELETE FROM Movies
                     WHERE MovieID = %s'''
         val = (self.MovieID, )

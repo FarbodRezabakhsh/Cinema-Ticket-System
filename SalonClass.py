@@ -24,6 +24,9 @@ class Salon:
         Exe(querry, val)
 
     def Delete_Salon(self):
+        '''
+        Delete from Salons Table Old_Salon
+        '''
         querry = '''DELETE FROM Salons
                     WHERE SalonID = %s'''
         val = (self.SalonID, )
