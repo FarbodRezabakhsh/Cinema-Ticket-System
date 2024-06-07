@@ -1,20 +1,39 @@
 from datetime import datetime
+from ErrorHandeling import *
 from sql_connecter import *
 
+def Define_FilmScreening_Handeling(MovieID : int, SalonID : int, ShowDate : str):
+    '''
+    This function check if there is any interference in New_Filmscreening.
+    It returns False When there is interference and True When There isn't.
+    '''
 
-def Define_FilmScreening_Handeling(MovieID, SalonID, ShowDate):
     querry = '''
     select  movies.ShowTime
     from movies
     where MovieID = %s
     '''
     val = (MovieID, )
-    mycursor = mydb.cursor()
-    mycursor.execute(querry, val)
-    MovieShowTime = mycursor.fetchall()[0][0]
+    MovieIDs = Get_list(querry , val)
+    if MovieIDs == []:
+        msg = "There isn't any Movie with MovieID : {}".format(MovieID)
+        raise Define_FilmScreening_Error_MovieID(msg)
+    MovieShowTime = MovieIDs[0][0]
 
     querry = '''
-    select filmscreenings.ShowDate , movies.ShowTime
+    select SalonID
+    from Salons
+    where SalonID = %s
+    '''
+    val = (SalonID, )
+    SalonIDs = Get_list(querry , val)
+    if SalonIDs == []:
+        msg = "There isn't any Salon with SalonID : {}".format(SalonID)
+        raise Define_FilmScreening_Error_SalonID(msg)
+    
+
+    querry = '''
+    select filmscreenings.ShowDate , movies.ShowTime , movies.MovieID
     from filmscreenings
     join movies
     on filmscreenings.MovieID = movies.MovieID
@@ -22,22 +41,17 @@ def Define_FilmScreening_Handeling(MovieID, SalonID, ShowDate):
     order by filmscreenings.ShowDate 
     '''
     val = (SalonID,)
-    mycursor = mydb.cursor()
-    mycursor.execute(querry, val)
-    myresult = mycursor.fetchall()
-
-    check = False
-    if myresult == []:
-        check = True
+    Date_and_Time_list = Get_list(querry , val)
     ShowDate = datetime.strptime(ShowDate, '%Y-%m-%d %H:%M:%S')
-    for i in range(len(myresult) - 1):
-        if myresult[i][0] + myresult[i][1] < ShowDate and myresult[i+1][0] + myresult[i+1][1] > ShowDate + MovieShowTime:
-            check = True
+    res = [True, None]
+    for i in range(len(Date_and_Time_list)):
+        if Date_and_Time_list[i][0] <= ShowDate < Date_and_Time_list[i][0] + Date_and_Time_list[i][1]:
+            res[0] = False
+            res[1] = Date_and_Time_list[i][2]
             break
-    if not check:
-        if myresult[-1][0] + myresult[-1][1] < ShowDate:
-            check = True
-        elif ShowDate + MovieShowTime < myresult[0][0]:
-            check = True
+        elif ShowDate < Date_and_Time_list[i][0] < ShowDate + MovieShowTime:
+            res[0] = False
+            res[1] = Date_and_Time_list[i][2]
+            break
 
-    return check
+    return res

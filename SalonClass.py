@@ -1,7 +1,10 @@
 from sql_connecter import *
 
 class Salon:
-    def __init__(self, SalonID, RowCount, ColumnCount, TicketPrice):
+    '''    
+    A class to represent Salon.
+    '''
+    def __init__(self, SalonID : int, RowCount : int, ColumnCount : int, TicketPrice : float):
         '''
         Constructs:
         SalonID : int 

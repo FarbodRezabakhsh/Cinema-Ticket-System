@@ -1,6 +1,10 @@
 from sql_connecter import *
+
 class Movie:
-    def __init__(self, MovieID, MovieName, AgeRating, ShowTime):
+    '''    
+    A class to represent Movie.
+    '''
+    def __init__(self, MovieID : int, MovieName : str, AgeRating : int, ShowTime : str):
         '''
         Constructs:
         MovieID : int 
