@@ -85,3 +85,12 @@ class Auth:
                 return {'status': 'fail', 'message': 'Invalid username or password.'}
         except sqlite3.Error as e:
             return {'status': 'fail', 'message': f'Error logging in: {e}'}
+
+    def reset_password(self, username, new_password):
+        try:
+            self.c.execute("UPDATE USERS SET password = ? WHERE username = ?", (new_password, username))
+            self.conn.commit()
+            return {'status': 'success', 'message': 'Password reset successful.'}
+        except sqlite3.Error as e:
+            return {'status': 'fail', 'message': f'Error resetting password: {e}'}
+
