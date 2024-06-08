@@ -1,7 +1,7 @@
 import hashlib
 import getpass
 
-# فرض می‌کنیم تابع‌های مختلف برای اجرای کوئری‌های دیتابیس نوشته شده است
+#   تابع‌های مختلف برای اجرای کوئری‌های دیتابیس   
 # from external_database_module import execute_query_register, execute_query_login, execute_query_add_movie, execute_query_delete_movie, execute_query_select_salone_and_movie, execute_query_buy_ticket, execute_query_buy_subscription
 
 # Hash password
