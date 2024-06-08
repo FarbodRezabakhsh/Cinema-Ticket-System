@@ -1,87 +1,55 @@
-import mysql.connector
 import hashlib
 import getpass
 
-DB_CONFIG = {
-    'user': 'your_username',
-    'password': 'your_password',
-    'host': '127.0.0.1',
-    'database': 'cinema',
-}
+# فرض می‌کنیم تابع‌های مختلف برای اجرای کوئری‌های دیتابیس نوشته شده است
+# from external_database_module import execute_query_register, execute_query_login, execute_query_add_movie, execute_query_delete_movie, execute_query_select_salone_and_movie, execute_query_buy_ticket, execute_query_buy_subscription
 
 # Hash password
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
-
-# Connect to database
-def connect_db():
-    return mysql.connector.connect(**DB_CONFIG)
 
 # Register new user
 def register():
     username = input("Enter username: ")
     password = getpass.getpass("Enter password: ")
     email = input("Enter email: ")
+    phone = input("Enter phone number: ")
+    birth_date = input("Enter birth date (YYYY-MM-DD): ")
 
-    conn = connect_db()
-    cursor = conn.cursor()
     try:
-        cursor.execute("INSERT INTO users (username, password, email) VALUES (%s, %s, %s)", (username, hash_password(password), email))
-        conn.commit()
+        execute_query_register(username, hash_password(password), email, phone, birth_date)
         print("Registration successful")
-    except mysql.connector.IntegrityError:
-        print("Username or email already exists")
-    finally:
-        cursor.close()
-        conn.close()
+    except Exception as e:
+        print(f"Error: {e}")
 
 # Login user
 def login():
     username = input("Enter username: ")
     password = getpass.getpass("Enter password: ")
 
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE username = %s AND password = %s", (username, hash_password(password)))
-    user = cursor.fetchone()
-    cursor.close()
-    conn.close()
-
+    user = execute_query_login(username, hash_password(password))
     if user:
         print("Login successful")
-        return user[0]
+        return user[0], user[1]
     else:
         print("Invalid credentials")
-        return None
+        return None, None
 
-# Admin add movie
+# Add movie (Admin)
 def add_movie():
     title = input("Enter movie title: ")
     description = input("Enter movie description: ")
     release_date = input("Enter release date (YYYY-MM-DD): ")
     cinema_id = input("Enter cinema ID: ")
 
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO movies (title, description, release_date, cinema_id) VALUES (%s, %s, %s, %s)", 
-                   (title, description, release_date, cinema_id))
-    conn.commit()
-    cursor.close()
-    conn.close()
-
+    execute_query_add_movie(title, description, release_date, cinema_id)
     print("Movie added successfully")
 
-# Admin delete movie
+# Delete movie (Admin)
 def delete_movie():
     movie_id = input("Enter movie ID to delete: ")
 
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM movies WHERE id = %s", (movie_id,))
-    conn.commit()
-    cursor.close()
-    conn.close()
-
+    execute_query_delete_movie(movie_id)
     print("Movie deleted successfully")
 
 # User menu
@@ -125,57 +93,43 @@ def admin_menu():
 
 # Select salone and movie
 def select_salone_and_movie(user_id):
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, name, location FROM cinemas")
-    cinemas = cursor.fetchall()
+    cinemas = execute_query_select_salone_and_movie()
 
     print("\nAvailable Cinemas:")
     for cinema in cinemas:
         print(f"{cinema[0]}. {cinema[1]} - {cinema[2]}")
 
     cinema_id = input("Enter cinema ID: ")
-    cursor.execute("SELECT id, name, total_seats FROM salones WHERE cinema_id = %s", (cinema_id,))
-    salones = cursor.fetchall()
+    salones = execute_query_select_salone_and_movie(cinema_id)
 
     print("\nAvailable Salones:")
     for salone in salones:
         print(f"{salone[0]}. {salone[1]} - Total seats: {salone[2]}")
 
-    salone_id = input("کد سالن مورد نظرتان را وارد کنید")
-    cursor.execute("SELECT id, title, description, release_date FROM movies WHERE cinema_id = %s", (cinema_id,))
-    movies = cursor.fetchall()
+    salone_id = input("Enter salone ID: ")
+    movies = execute_query_select_salone_and_movie(cinema_id)
 
     print("\nAvailable Movies:")
     for movie in movies:
-        print(f"{movie[0]}. {movie[1]} - {movie[2]} (تاریخ انتشار: {movie[3]})")
+        print(f"{movie[0]}. {movie[1]} - {movie[2]} (Release date: {movie[3]})")
 
-    movie_id = input(":کد فیلم مورد نظرتان را وارد کنید")
+    movie_id = input("Enter movie ID: ")
 
-    print("!سالن و فیلم مورد نظرتان با موفقیت انتخاب شدند")
-    cursor.close()
-    conn.close()
+    print("Selected salone and movie successfully")
 
 # Buy ticket
 def buy_ticket(user_id):
     movie_id = input("Enter movie ID: ")
     seat_number = input("Enter seat number: ")
 
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT available_seats FROM salones WHERE id = (SELECT salone_id FROM movies WHERE id = %s)", (movie_id,))
-    available_seats = cursor.fetchone()
+    available_seats = execute_query_buy_ticket(movie_id)
 
-    if available_seats and int(seat_number) <= available_seats[0]:
-        cursor.execute("INSERT INTO reservations (user_id, movie_id, seat_number) VALUES (%s, %s, %s)", (user_id, movie_id, seat_number))
-        cursor.execute("UPDATE salones SET total_seats = total_seats - 1 WHERE id = (SELECT salone_id FROM movies WHERE id = %s)", (movie_id,))
-        conn.commit()
+    if available_seats and int(seat_number) <= available_seats[0][0]:
+        execute_query_buy_ticket(user_id, movie_id, seat_number)
+        execute_query_buy_ticket(movie_id)
         print("Ticket purchased successfully")
     else:
         print("Invalid seat number or no available seats")
-
-    cursor.close()
-    conn.close()
 
 # Buy subscription
 def buy_subscription(user_id):
@@ -183,14 +137,7 @@ def buy_subscription(user_id):
     start_date = input("Enter start date (YYYY-MM-DD): ")
     end_date = input("Enter end date (YYYY-MM-DD): ")
 
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO subscriptions (user_id, plan_name, start_date, end_date) VALUES (%s, %s, %s, %s)", 
-                   (user_id, plan_name, start_date, end_date))
-    conn.commit()
-    cursor.close()
-    conn.close()
-
+    execute_query_buy_subscription(user_id, plan_name, start_date, end_date)
     print("Subscription purchased successfully")
 
 # Main menu
@@ -199,23 +146,19 @@ def main_menu():
         print("\nMain Menu")
         print("1. Sign Up")
         print("2. Sign In")
-        print("3. Admin Login")
-        print("4. Exit")
+        print("3. Exit")
         choice = input("Enter your choice: ")
 
         if choice == '1':
             register()
         elif choice == '2':
-            user_id = login()
+            user_id, is_admin = login()
             if user_id:
-                user_menu(user_id)
+                if is_admin:
+                    admin_menu()
+                else:
+                    user_menu(user_id)
         elif choice == '3':
-            admin_password = getpass.getpass("Enter admin password: ")
-            if admin_password == 'admin':
-                admin_menu()
-            else:
-                print("Invalid admin password")
-        elif choice == '4':
             break
         else:
             print("Invalid choice")
