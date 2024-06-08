@@ -37,12 +37,13 @@ class Admin:
         try:
             New_FilmScreening = FilmScreening('DEFAULT', MovieID, SalonID, ShowDate)
             New_FilmScreening.Define_FilmScreening()
+            return 
         except Define_FilmScreening_Error_interference as er:
-            print(er)
+            return er
         except Define_FilmScreening_Error_MovieID as er:
-            print(er)
+            return er
         except Define_FilmScreening_Error_SalonID as er:
-            print(er)
+            return er
     
     def Delete_Salon(self, SalonID : int):
         '''
