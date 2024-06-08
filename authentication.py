@@ -85,8 +85,19 @@ class Auth:
                 return {'status': 'fail', 'message': 'Invalid username or password.'}
         except sqlite3.Error as e:
             return {'status': 'fail', 'message': f'Error logging in: {e}'}
+        
 
-    def reset_password(self, username, new_password):
+    def reset_password(self, username, old_password, new_password, confirm_password):
+        self.c.execute("SELECT password FROM USERS WHERE username=?", (username,))
+        row = self.c.fetchone()
+        if row is None:
+            return {'status': 'fail', 'message': 'User not found.'}
+
+        if row[0] != old_password:
+            return {'status': 'fail', 'message': 'Old password is incorrect.'}
+
+        if new_password != confirm_password:
+            return {'status': 'fail', 'message': 'New password and confirm password do not match.'}
         try:
             self.c.execute("UPDATE USERS SET password = ? WHERE username = ?", (new_password, username))
             self.conn.commit()
@@ -94,3 +105,4 @@ class Auth:
         except sqlite3.Error as e:
             return {'status': 'fail', 'message': f'Error resetting password: {e}'}
 
+ 
