@@ -55,17 +55,18 @@ class Auth:
         return True, ""
 
     def sign_up(self, username, email, password):
-        is_valid, msg = self.validate_username(username)
-        if not is_valid:
-            return {"status": "fail", "message": msg}
-
-        is_valid, msg = self.validate_email(email)
-        if not is_valid:
-            return {"status": "fail", "message": msg}
-
-        is_valid, msg = self.validate_password(password)
-        if not is_valid:
-            return {"status": "fail", "message": msg}
+        try:
+            self.validate_username(username)
+        except ValueError as ve:
+            raise ValueError('Username is wrong!')
+        try:
+            self.validate_email(email)
+        except ValueError as ve:
+            raise ValueError('Email is wrong.')
+        try:
+            self.validate_password(password)
+        except ValueError:
+            raise ValueError('Password you entered is wrong!')
 
         user_data = {
             "username": username,
