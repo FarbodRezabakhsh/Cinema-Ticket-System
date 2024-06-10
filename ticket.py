@@ -1,39 +1,50 @@
 import mysql.connector
 
 class Wallet:
+    def get_wallet_balance(self, user_id):
+        query = "SELECT Balance FROM Wallets WHERE UserID = %s"
+        self.cursor.execute(query, (user_id,))
+        result = self.cursor.fetchone()
+        if result:
+            return result[0]
+        return None
 
-    def add_bank_account(self, user_id, card_number, password, cvv2, balance):
+    def get_card_balance(self, card_number):
+        query = "SELECT Balance FROM Wallets WHERE CardNumber = %s"
+        self.cursor.execute(query, (card_number,))
+        result = self.cursor.fetchone()
+        if result:
+            return result[0]
+        return None
+
+    def add_or_subtract_wallet(self, user_id, amount):
+        curr_balance = self.get_wallet_balance(user_id)
+        if curr_balance is not None:
+            new_balance = curr_balance + amount
+            query = "UPDATE Wallets SET Balance = %s WHERE UserID = %s"
+            self.cursor.execute(query, (new_balance, user_id))
+            self.conn.commit()
+
+    def subtract_from_card_balance(self, card_number, amount):
+        curr_balance = self.get_card_balance(card_number)
+        if curr_balance is not None and curr_balance >= amount:
+            new_balance = curr_balance - amount
+            query = "UPDATE Wallets SET Balance = %s WHERE CardNumber = %s"
+            self.cursor.execute(query, (new_balance, card_number))
+            self.conn.commit()
+
+    def add_card_to_wallet(self, user_id, card_number, password, cvv2, balance):
         query = "INSERT INTO Wallets (CardNumber, WalletPassword, CVV2, Balance, UserID) VALUES (%s, %s, %s, %s, %s)"
         self.cursor.execute(query, (card_number, password, cvv2, balance, user_id))
         self.conn.commit()
 
-    def charge_wallet(self, user_id, amount):
-        # self.add_bank_account(user_id, '123456789', 'password123', '123', 0) # Example usage of add_bank_account method
-        query = "UPDATE Wallets SET Balance = Balance + %s WHERE UserID = %s"
-        self.cursor.execute(query, (amount, user_id))
-        self.conn.commit()
-    
-     
-    def get_transaction(self, card_number, password, cvv2, amount, info):
-        query = "SELECT Balance FROM Wallets WHERE CardNumber = %s AND WalletPassword = %s AND CVV2 = %s"
-        self.cursor.execute(query, (card_number, password, cvv2))
-        result = self.cursor.fetchone()
-        if result:
-            balance = result[0]
-            if balance >= amount:
-                new_balance = balance - amount
-                query = "UPDATE Wallets SET Balance = %s WHERE CardNumber = %s AND WalletPassword = %s AND CVV2 = %s"
-                self.cursor.execute(query, (new_balance, card_number, password, cvv2))
-                self.conn.commit()
-                with open('transaction.log', 'a') as f:
-                    f.write(f"Card Number: {card_number}\n")
-                    f.write(f"Amount: {amount}\n")
-                    f.write(f"Transaction Info: {info}\n")
-                    f.write("\n")
-     
-          
-      
-      
+
+    def log_transaction(self, card_number, amount, info):
+        with open('transaction.log', 'a') as f:
+            f.write(f"Card Number: {card_number}\n")
+            f.write(f"Amount: {amount}\n")
+            f.write(f"Transaction Info: {info}\n")
+            f.write("\n")     
       
       
       
