@@ -58,15 +58,15 @@ class Auth:
         try:
             self.validate_username(username)
         except ValueError as ve:
-            raise ValueError('Username is wrong!')
+            raise ValueError(f'Username is wrong! {ve}')
         try:
             self.validate_email(email)
         except ValueError as ve:
-            raise ValueError('Email is wrong.')
+            raise ValueError(f'Email is wrong. {ve}')
         try:
             self.validate_password(password)
         except ValueError:
-            raise ValueError('Password you entered is wrong!')
+            raise ValueError(f'Password you entered is wrong! {ve}')
 
         user_data = {
             "username": username,
