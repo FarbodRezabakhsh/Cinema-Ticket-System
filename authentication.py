@@ -66,7 +66,7 @@ class Auth:
                 return False
         return True
 
-    def validate_username(self, username: str) -> Tuple[bool, str]:
+    def validate_username(self, username: str) -> bool:
         """
         Validate the username format and uniqueness.
 
@@ -74,7 +74,7 @@ class Auth:
             username (str): The username to validate.
 
         Returns:
-            Tuple[bool, str]: A tuple containing a boolean indicating validity and a message.
+            bool: A tuple containing a boolean indicating validity and a message.
         """
         if not re.match(r'^[A-Za-z0-9]+$', username):  # alphanumeric
             return False, "Username must consist of upper and lower case letters and numbers."
@@ -82,9 +82,9 @@ class Auth:
             return False, "Username length should not be more than 100 characters."
         if not self.is_username_unique(username):
             return False, "Username must be unique."
-        return True, ""
+        return True
 
-    def validate_email(self, email: str) -> Tuple[bool, str]:
+    def validate_email(self, email: str) -> bool:
         """
         Validate the email format and uniqueness.
 
@@ -99,9 +99,9 @@ class Auth:
             return False, "Email format is invalid."
         if not self.is_email_unique(email):
             return False, "Email must be unique."
-        return True, ""
+        return True
 
-    def validate_password(self, password: str) -> Tuple[bool, str]:
+    def validate_password(self, password: str) -> bool:
         """
         Validate the password format.
 
@@ -117,7 +117,7 @@ class Auth:
             return False, "Password must contain at least two letters."
         if not re.search(r'[@#&$]', password):
             return False, "Password must contain at least one special character (@#&$)."
-        return True, ""
+        return True
 
     def sign_up(self, username: str, email: str, password: str) -> Dict[str, str]:
         """
