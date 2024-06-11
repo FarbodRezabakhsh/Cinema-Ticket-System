@@ -7,13 +7,14 @@ class Auth:
     A class for handling user authentication, including signing up, logging in, 
     and resetting passwords. This class interacts with an SQLite database to 
     store and retrieve user information.
-
-    Attributes:
+    """
+    def __init__(self, database_path: str) -> None:
+        """
+        Attributes:
         db_path (str): The path to the SQLite database file.
         conn (sqlite3.Connection): The SQLite database connection.
         c (sqlite3.Cursor): The cursor for executing SQL commands.
-    """
-    def __init__(self, database_path: str) -> None:
+        """
         self.db_path = database_path
         self.conn = sqlite3.connect(database_path)
         self.c = self.conn.cursor()
