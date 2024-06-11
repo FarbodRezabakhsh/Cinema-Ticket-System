@@ -74,44 +74,6 @@ class Wallet:
             self.execute_query(query, (new_balance,))
             self.log_transaction(user_id, amount, info)
     
-class Subscription: 
-    def init(self, cursor, conn): 
-        self.cursor = cursor    
-        self.conn = conn
-        self.now = datetime.now()
-
- 
-
-    def execute_query(self, query, values=None):
-        with self.conn.cursor() as cursor:
-            cursor.execute(query, values)
-        self.conn.commit()
-
-    def get_single_result(self, query, values=None):
-        with self.conn.cursor() as cursor:
-            cursor.execute(query, values)
-            result = cursor.fetchone()
-        return result[0] if result else None
-
-    def get_silver(self, user_id):
-        wallet = Wallet(cursor, conn)
-        wallet.get_subscription(user_id, 100, 'get silver')
-        expiredate = self.now(day) + 90
-        query = "UPDATE Subscription SET Subscription_type = %s and Expiredate = %s WHERE UserID = %s"
-        self.execute_query(query, ('silver', expiredate, user_id))
-        
-
-    def get_gold(self, user_id):
-        wallet = Wallet(cursor, conn)
-        wallet.get_subscription(user_id, 200, 'get gold')
-        expiredate = self.now(yay) + 150
-        query = "UPDATE Subscription SET Subscription_type = %s and Expiredate = %s WHERE UserID = %s"
-        self.execute_query(query, ('silver', expiredate, user_id))
-
-    def view_subscription(self, user_id):
-        query = "SELECT subscription_type FROM Subscription WHERE UserID = %s"
-        return self.get_single_result(query, (user_id,))
-
 
 class Subscription: 
     def init(self, cursor, conn): 
