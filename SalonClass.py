@@ -1,4 +1,5 @@
 from sql_connecter import *
+from DeletingHandeling import *
 
 class Salon:
     '''    
@@ -30,11 +31,13 @@ class Salon:
         '''
         Delete from Salons Table Old_Salon
         '''
+        res = Delete_Salon_Handler(self.SalonID)
         querry = '''DELETE FROM Salons
                     WHERE SalonID = %s'''
         val = (self.SalonID, )
         Exe(querry , val)
-    
+        return res 
+
     def Get_All_Salons():
         '''
         Return All Salons from Salons table.

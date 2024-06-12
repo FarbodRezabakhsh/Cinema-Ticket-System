@@ -54,20 +54,6 @@ CREATE TABLE Movies (
     ShowTime TIME
 );
 
-
--- Table for Tickets
-CREATE TABLE Tickets (
-    TicketID INT PRIMARY KEY auto_increment,
-    FilmScreeningID INT,
-    UserID int,
-    SeatRow INT,
-    SeatColumn INT,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID),
-    FOREIGN KEY (FilmScreeningID) REFERENCES FilmScreenings(FilmScreeningID) ON DELETE CASCADE
-);
-
-
-
 -- Table for FilmScreening
 CREATE TABLE FilmScreenings (
     FilmScreeningID INT PRIMARY KEY auto_increment,
@@ -77,6 +63,22 @@ CREATE TABLE FilmScreenings (
     FOREIGN KEY (MovieID) REFERENCES Movies(MovieID) on delete CASCADE,
     FOREIGN KEY (SalonID) REFERENCES Salons(SalonID) on delete CASCADE
 );
+
+-- Table for Tickets
+CREATE TABLE Tickets (
+    TicketID INT PRIMARY KEY auto_increment,
+    FilmScreeningID INT,
+    UserID int,
+    SeatRow INT,
+    SeatColumn INT,
+    TicketPrice Float,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (FilmScreeningID) REFERENCES FilmScreenings(FilmScreeningID) ON DELETE CASCADE
+);
+
+
+
+
 
 -- Table for Comments
 CREATE TABLE Comments (

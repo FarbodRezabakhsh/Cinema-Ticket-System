@@ -50,21 +50,30 @@ class Admin:
         Create Old_Salon Obj And Call Delete_Salon Method from Salon Class.
         '''
         Old_Salon = Salon(SalonID, None, None, None)
-        Old_Salon.Delete_Salon()
+        try:
+            return Old_Salon.Delete_Salon()
+        except Delete_Salon as er:
+            return er
 
     def Delete_Movie(self, MovieID : int):
         '''
         Create Old_Movie Obj And Call Delete_Movie Method from Movie Class.
-        '''
+        '''            
         Old_Movie = Movie(MovieID, None, None, None)
-        Old_Movie.Delete_Movie()
+        try:
+            return Old_Movie.Delete_Movie()
+        except Delete_Movie as er:
+            return er
 
     def Delete_FilmScreening(self, FilmScreeningID : int):
         '''
         Create Old_FilmScreening Obj And Call Delete_FilmScreening Method from FilmScreening Class.
         '''
         Old_FilmScreening = FilmScreening(FilmScreeningID, None, None, None)
-        Old_FilmScreening.Delete_FilmScreening()
+        try:
+            return Old_FilmScreening.Delete_FilmScreening()
+        except Delete_FilmScreening as er:
+            return er
     
     def Get_All_Movies(self):
         '''

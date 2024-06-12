@@ -1,6 +1,7 @@
 from sql_connecter import *
 from ErrorHandeling import *
 from Define_FilmScreening_Handeling import *
+from DeletingHandeling import *
 
 class FilmScreening:
     '''    
@@ -36,10 +37,12 @@ class FilmScreening:
         '''
         Delete from FilmScreenings Table Old_FilmScreening
         '''
+        res = Delete_FilmScreening_Handler(self.FilmScreeningID)
         querry = '''DELETE FROM FilmScreenings
                     WHERE FilmScreeningID = %s'''
         val = (self.FilmScreeningID, )
         Exe(querry, val)
+        return res
 
     def Salon_Situation(self):
         '''

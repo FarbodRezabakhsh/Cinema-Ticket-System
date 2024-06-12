@@ -1,4 +1,5 @@
 from sql_connecter import *
+from DeletingHandeling import *
 
 class Movie:
     '''    
@@ -30,17 +31,17 @@ class Movie:
         '''
         Delete from Movies Table Old_Movie
         '''
+        res = Delete_Movie_Handler(self.MovieID)
         querry = '''DELETE FROM Movies
                     WHERE MovieID = %s'''
         val = (self.MovieID, )
         Exe(querry , val)
+        return res
 
     def Get_All_Movies():
         '''
-        Return All FilmScreenings from FilmScreenings table.
+        Return All Movies from Movies table.
         '''    
-        querry = ('''SELECT FilmScreeningID , m.MovieID , m.MovieName , s.SalonID , s.TicketPrice
-                    FROM FilmScreenings
-                    join cinemadb.movies m on m.MovieID = FilmScreenings.MovieID
-                    join cinemadb.salons s on s.SalonID = FilmScreenings.SalonID''')
+        querry = ('''SELECT *
+                    FROM Movies''')
         return Get(querry)

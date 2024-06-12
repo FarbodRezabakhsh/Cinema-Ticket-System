@@ -16,3 +16,20 @@ class Define_FilmScreening_Error_SalonID(Exception):
     '''
     pass
 
+class Delete_Movie(Exception):
+    '''
+    Error for Deleting Movie
+    '''
+    pass
+
+class Delete_Salon(Exception):
+    '''
+    Error for Deleting Salon
+    '''
+    pass
+
+class Delete_FilmScreening(Exception):
+    '''
+    Error for Deleting FilmScreening
+    '''
+    pass

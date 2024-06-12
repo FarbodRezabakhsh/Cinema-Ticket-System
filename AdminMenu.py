@@ -84,17 +84,20 @@ class AdminMenu:
         elif order == "7":
             print("Enter MovieID: ")
             MovieID = int(input())
-            myAdmin.Delete_Movie(MovieID)
+            print(myAdmin.Delete_Movie(MovieID))
+            return self.AdminPage()
         
         elif order == "8":
             print("Enter SalonID: ")
             SalonID = int(input())
-            myAdmin.Delete_Salon(SalonID)
-        
+            print(myAdmin.Delete_Salon(SalonID))
+            return self.AdminPage()
+           
         elif order == "9":
             print("Enter FilmScreeningID: ")
             FilmScreeningID = int(input())
-            myAdmin.Delete_FilmScreening(FilmScreeningID)
+            print(myAdmin.Delete_FilmScreening(FilmScreeningID))
+            return self.AdminPage()
         
         elif order == "0":
             pass
