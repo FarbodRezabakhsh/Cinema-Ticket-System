@@ -1,7 +1,6 @@
 from sql_connecter import *
 from ErrorHandeling import *
 from Define_FilmScreening_Handeling import *
-from SalonClass import Salon
 
 class FilmScreening:
     '''    
@@ -44,7 +43,7 @@ class FilmScreening:
 
     def Salon_Situation(self):
         '''
-        Return Matrix of Salin seat situation.
+        Return Matrix of Salon seat situation.
         '''
         querry = ('''Select SeatRow , SeatColumn
                     from tickets
@@ -56,3 +55,11 @@ class FilmScreening:
         val = (self.SalonID , )
         return Get_list(querry, val)
     
+    def Get_All_FilmScreenings():
+        querry = ('''Select filmscreenings.FilmScreeningID , movies.MovieID , movies.MovieName , salons.SalonID , Salons.Ticketprice
+                    from filmscreenings
+                    join movies
+                    on movies.MovieID = filmscreenings.MovieID
+                    join salons
+                    on salons.SalonID = filmscreenings.SalonID''')
+        return Get(querry)

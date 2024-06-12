@@ -70,9 +70,7 @@ class Admin:
         '''
         Return All Movies from Movies table.
         '''        
-        querry = ('''SELECT *
-                FROM Movies''')
-        return Get(querry)
+        return Movie.Get_All_Movies()
 
     def Get_All_Salons(self):
         '''
@@ -85,4 +83,4 @@ class Admin:
         '''
         Return All FilmScreenings from FilmScreenings table.
         '''    
-        return Movie.Get_All_Movies()
+        return FilmScreening.Get_All_FilmScreenings()
