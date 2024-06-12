@@ -37,7 +37,7 @@ class Auth:
             Dict[str, str]: A dictionary containing the status and message of the operation.
         """
         try:
-            Get("INSERT INTO USERS(username,email,password) VALUES (?,?,?)",
+            Exe("INSERT INTO USERS(username,email,password) VALUES (?,?,?)",
                            (user_data['username'], user_data['email'], user_data['password']))
             self.conn.commit()
             return {'status': 'success', 'message': 'user added to database.'}
@@ -203,7 +203,7 @@ class Auth:
         if new_password != confirm_password:
             return {'status': 'fail', 'message': 'New password and confirm password do not match.'}
         try:
-            Get("UPDATE USERS SET password = ? WHERE username = ?", (new_password, username))
+            Exe("UPDATE USERS SET password = ? WHERE username = ?", (new_password, username))
             self.conn.commit()
             return {'status': 'success', 'message': 'Password reset successful.'}
         except sqlite3.Error as e:
