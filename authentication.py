@@ -1,6 +1,7 @@
 import re
 import sqlite3
 from typing import Dict, Tuple
+import mysql.connector
 
 class Auth:
     """
@@ -8,15 +9,20 @@ class Auth:
     and resetting passwords. This class interacts with an SQLite database to 
     store and retrieve user information.
     """
-    def __init__(self, database_path: str) -> None:
+    def __init__(self) -> None:
         """
         Attributes:
-        db_path (str): The path to the SQLite database file.
-        conn (sqlite3.Connection): The SQLite database connection.
+        db_name (str): The name of mysql database.
+        conn (sqlite3.Connection): The mysql database connection.
         c (sqlite3.Cursor): The cursor for executing SQL commands.
         """
-        self.db_path = database_path
-        self.conn = sqlite3.connect(database_path)
+        self.db_name = 'CinemaDB'
+        self.conn = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="Fare***12",
+            database=self.db_name
+        )
         self.c = self.conn.cursor()
 
     def add_to_database(self, user_data: Dict[str, str]) -> Dict[str, str]:
