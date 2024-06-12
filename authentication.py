@@ -2,6 +2,7 @@ import re
 import sqlite3
 from typing import Dict, Tuple
 import mysql.connector
+from mysql_conncetor import Get,Exe,Get_list
 
 class Auth:
     """
@@ -36,7 +37,7 @@ class Auth:
             Dict[str, str]: A dictionary containing the status and message of the operation.
         """
         try:
-            self.c.execute("INSERT INTO USERS(username,email,password) VALUES (?,?,?)",
+            Get("INSERT INTO USERS(username,email,password) VALUES (?,?,?)",
                            (user_data['username'], user_data['email'], user_data['password']))
             self.conn.commit()
             return {'status': 'success', 'message': 'user added to database.'}
@@ -170,7 +171,7 @@ class Auth:
             Dict[str, str]: A dictionary containing the status and message of the operation.
         """
         try:
-            self.c.execute("SELECT * FROM USERS WHERE username = ? AND password = ?", (username, password))
+            Get("SELECT * FROM USERS WHERE username = ? AND password = ?", (username, password))
             user = self.c.fetchone()
             if user:
                 return {'status': 'success', 'message': 'Login successful.'}
@@ -191,7 +192,7 @@ class Auth:
         Returns:
             Dict[str, str]: A dictionary containing the status and message of the operation.
         """
-        self.c.execute("SELECT password FROM USERS WHERE username=?", (username,))
+        Get("SELECT password FROM USERS WHERE username=?", (username,))
         row = self.c.fetchone()
         if row is None:
             return {'status': 'fail', 'message': 'User not found.'}
@@ -202,7 +203,7 @@ class Auth:
         if new_password != confirm_password:
             return {'status': 'fail', 'message': 'New password and confirm password do not match.'}
         try:
-            self.c.execute("UPDATE USERS SET password = ? WHERE username = ?", (new_password, username))
+            Get("UPDATE USERS SET password = ? WHERE username = ?", (new_password, username))
             self.conn.commit()
             return {'status': 'success', 'message': 'Password reset successful.'}
         except sqlite3.Error as e:
