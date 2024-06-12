@@ -1,6 +1,7 @@
 from sql_connecter import *
 from ErrorHandeling import *
 from Define_FilmScreening_Handeling import *
+from SalonClass import Salon
 
 class FilmScreening:
     '''    
@@ -40,3 +41,18 @@ class FilmScreening:
                     WHERE FilmScreeningID = %s'''
         val = (self.FilmScreeningID, )
         Exe(querry, val)
+
+    def Salon_Situation(self):
+        '''
+        Return Matrix of Salin seat situation.
+        '''
+        querry = ('''Select SeatRow , SeatColumn
+                    from tickets
+                    join filmscreenings
+                    on filmscreenings.FilmScreeningID = tickets.FilmScreeningID
+                    join salons
+                    on filmscreenings.SalonID = salons.SalonID
+                    Where salons.SalonID = %s ''')
+        val = (self.SalonID , )
+        return Get_list(querry, val)
+    
