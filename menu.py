@@ -1,15 +1,21 @@
 import hashlib
 import getpass
+import os
 
-#   تابع‌های مختلف برای اجرای کوئری‌های دیتابیس   
+# External functions for executing database queries
 # from external_database_module import execute_query_register, execute_query_login, execute_query_add_movie, execute_query_delete_movie, execute_query_select_salone_and_movie, execute_query_buy_ticket, execute_query_buy_subscription
 
 # Hash password
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
+# Clear the terminal screen
+def clear_screen():
+    os.system("cls" if os.name == "nt" else "clear")
+
 # Register new user
 def register():
+    clear_screen()
     username = input("Enter username: ")
     password = getpass.getpass("Enter password: ")
     email = input("Enter email: ")
@@ -24,6 +30,7 @@ def register():
 
 # Login user
 def login():
+    clear_screen()
     username = input("Enter username: ")
     password = getpass.getpass("Enter password: ")
 
@@ -37,6 +44,7 @@ def login():
 
 # Add movie (Admin)
 def add_movie():
+    clear_screen()
     title = input("Enter movie title: ")
     description = input("Enter movie description: ")
     release_date = input("Enter release date (YYYY-MM-DD): ")
@@ -47,6 +55,7 @@ def add_movie():
 
 # Delete movie (Admin)
 def delete_movie():
+    clear_screen()
     movie_id = input("Enter movie ID to delete: ")
 
     execute_query_delete_movie(movie_id)
@@ -55,6 +64,7 @@ def delete_movie():
 # User menu
 def user_menu(user_id):
     while True:
+        clear_screen()
         print("\nUser Menu")
         print("1. Select salone and movie")
         print("2. Buy ticket")
@@ -76,6 +86,7 @@ def user_menu(user_id):
 # Admin menu
 def admin_menu():
     while True:
+        clear_screen()
         print("\nAdmin Menu")
         print("1. Add movie")
         print("2. Delete movie")
@@ -93,6 +104,7 @@ def admin_menu():
 
 # Select salone and movie
 def select_salone_and_movie(user_id):
+    clear_screen()
     cinemas = execute_query_select_salone_and_movie()
 
     print("\nAvailable Cinemas:")
@@ -119,6 +131,7 @@ def select_salone_and_movie(user_id):
 
 # Buy ticket
 def buy_ticket(user_id):
+    clear_screen()
     movie_id = input("Enter movie ID: ")
     seat_number = input("Enter seat number: ")
 
@@ -133,6 +146,7 @@ def buy_ticket(user_id):
 
 # Buy subscription
 def buy_subscription(user_id):
+    clear_screen()
     plan_name = input("Enter subscription plan name: ")
     start_date = input("Enter start date (YYYY-MM-DD): ")
     end_date = input("Enter end date (YYYY-MM-DD): ")
@@ -143,6 +157,7 @@ def buy_subscription(user_id):
 # Main menu
 def main_menu():
     while True:
+        clear_screen()
         print("\nMain Menu")
         print("1. Sign Up")
         print("2. Sign In")
@@ -164,4 +179,5 @@ def main_menu():
             print("Invalid choice")
 
 if __name__ == '__main__':
-    main_menu()
+    while True:
+        main_menu()
