@@ -35,7 +35,7 @@ class Salon:
         val = (self.SalonID, )
         Exe(querry , val)
     
-    def Salon_Situation(self, SalonID):
+    def Salon_Situation(self):
         '''
         Return Matrix of Salin seat situation.
         '''
