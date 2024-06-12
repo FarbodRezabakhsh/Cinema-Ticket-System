@@ -47,7 +47,7 @@ class Salon:
                     on filmscreenings.SalonID = salons.SalonID
                     Where salons.SalonID = %s ''')
         val = (self.SalonID , )
-        Get_list(querry, val)
+        return Get_list(querry, val)
 
     def Get_All_Salons():
         '''
