@@ -34,3 +34,27 @@ class Salon:
                     WHERE SalonID = %s'''
         val = (self.SalonID, )
         Exe(querry , val)
+    
+    def Salon_Situation(self, SalonID):
+        '''
+        Return Matrix of Salin seat situation.
+        '''
+        querry = ('''Select SeatRow , SeatColumn
+                    from tickets
+                    join filmscreenings
+                    on filmscreenings.FilmScreeningID = tickets.FilmScreeningID
+                    join salons
+                    on filmscreenings.SalonID = salons.SalonID
+                    Where salons.SalonID = %s ''')
+        val = (self.SalonID , )
+        Get_list(querry, val)
+
+    def Get_All_Salons():
+        '''
+        Return All Salons from Salons table.
+        '''    
+        querry = ('''SELECT *
+                    FROM Salons''')
+        return Get(querry)
+    
+    

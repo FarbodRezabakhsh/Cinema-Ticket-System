@@ -34,3 +34,13 @@ class Movie:
                     WHERE MovieID = %s'''
         val = (self.MovieID, )
         Exe(querry , val)
+
+    def Get_All_Movies():
+        '''
+        Return All FilmScreenings from FilmScreenings table.
+        '''    
+        querry = ('''SELECT FilmScreeningID , m.MovieID , m.MovieName , s.SalonID , s.TicketPrice
+                    FROM FilmScreenings
+                    join cinemadb.movies m on m.MovieID = FilmScreenings.MovieID
+                    join cinemadb.salons s on s.SalonID = FilmScreenings.SalonID''')
+        return Get(querry)
