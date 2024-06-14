@@ -30,9 +30,19 @@ class Wallet:
                 self.execute_query(query, (new_balance, card_number))
                 self.log_transaction(user_id, amount, 'subtract_from_card_balance')
                 return True, "Transaction is complete. Your balance has been updated."
-            return False, "Your Balance is not enough"
+            return False, "Your Balance card number is not enough"
         return False, "Your information is incorrect"
-    
+    def back_to_wallet(self, user_id, amount):
+        query = "SELECT Balance FROM Wallets WHERE UserID = %s"
+        curr_balance = self.get_single_result(query, (user_id,))
+        new_balance = curr_balance+ amount
+        query = "UPDATE Wallets SET Balance = %s WHERE UserID = %s"
+        self.execute_query(query, (new_balance, user_id))
+        self.log_transaction(user_id, amount, 'back amount to wallet')
+        return True, "Back amount to wallet was successfully."
+        
+        
+        
     def charge_wallet(self, user_id, card_number, password, cvv2, amount):
         result = self.subtract_from_card_balance(user_id, card_number, password, cvv2, amount)
         if result[0]:
@@ -47,6 +57,8 @@ class Wallet:
             query = "INSERT INTO Wallets (UserID, Balance) VALUES (%s, %s)"
             self.execute_query(query, (user_id, amount))
             return True, "Transaction is complete. Your balance has been updated."
+        elif result[0] == False:
+            return result
         return False, "Transaction dose not complete."
 
     def add_card_to_Accounts(self, card_number, password, cvv2, amount, user_id):
@@ -83,7 +95,7 @@ class Wallet:
     def log_transaction(self, user_or_card_info, amount, info):
         with open('transaction.log', 'a') as f:
             f.write(f"User ID: {user_or_card_info} Amount: {amount} Transaction Info: {info} \n")
-
+    
     def get_transaction(self, user_id, amount, info='get ticket or Subscription'):
         query = "SELECT Balance FROM Wallets WHERE UserID = %s"
         curr_balance = self.get_single_result(query, (user_id,))
@@ -121,9 +133,17 @@ class Subscription:
         
     def check_expire_date(self, user_id):
         query = "SELECT ExpiryDate FROM Subscriptions WHERE UserID = %s"
-        curr_subscription = self.get_single_result(query, (user_id,))
-        print(curr_subscription)   
-        
+        expiry_date = self.get_single_result(query, (user_id,))
+        today = datetime.now().date()
+ #       if expiry_date < today:
+            
+#DELETE FROM table_name WHERE condition; 
+         
+    
+
+  
+    
+
     def check_subscription_type(self, subscription_type):
         if subscription_type == 'silver':
             cost = 100 
@@ -159,6 +179,7 @@ class Subscription:
         
 
     def view_subscription(self, user_id):
+        result = self.check_expire_date(user_id)
         query = "SELECT SubscriptionType FROM Subscriptions WHERE UserID = %s"
         return self.get_single_result(query, (user_id,))
         
@@ -167,27 +188,31 @@ wallet = Wallet()
 
 # charge_wallet
 '''
-print(wallet.charge_wallet('1','123456557890128745' ,'Accountspass1','111', 200))   
-print(wallet.get_wallet_balance('1'))
+print(wallet.charge_wallet('1','1234567890128745' ,'Accountspass1','111', 100))   
+#print(wallet.get_wallet_balance('1'))
 '''
 # get_transaction
-
 '''
-print(wallet.get_transaction('1', 10000))
+print(wallet.get_transaction('1', 100))
 print(wallet.get_wallet_balance('1'))
 '''
 
 # add_card_to_Accounts
-'''
-print(wallet.add_card_to_Accounts('1234567890128845', 'Accountspass1', '111', 900.00, '1'))
-print(wallet.get_card_balance('1'))
-'''
+
+#print(wallet.add_card_to_Accounts('1234567890128747', 'Accountspass1', '111', 500, '1'))
+#print(wallet.get_card_balance('1'))
 
 
+'''
 s = Subscription()
-print(s.update_subscription(1,'gold'))
-#print(s.view_subscription('1'))
- 
+print(s.update_subscription(1,'silver'))
+print(s.view_subscription('1'))
+'''
+
+
+# back_to_wallet
+print(wallet.back_to_wallet('1',500))
+
         
 
 
