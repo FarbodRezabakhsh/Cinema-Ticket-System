@@ -49,11 +49,22 @@ class Wallet:
             return True, "Transaction is complete. Your balance has been updated."
         return False, "Transaction dose not complete."
 
-
     def add_card_to_Accounts(self, card_number, password, cvv2, amount, user_id):
+        query_getcard = "SELECT CardNumber FROM Accounts WHERE CardNumber = %s"
+        existing_card = self.get_single_result(query_getcard, (card_number,))
+        if existing_card == card_number:
+            query_get_balance = "SELECT Amount FROM Accounts WHERE UserID = %s AND CardNumber = %s"
+            curr_balance = self.get_single_result(query_get_balance, (user_id, card_number))
+            new_balance = curr_balance + amount
+            query = "UPDATE Accounts SET Amount = %s WHERE UserID = %s AND CardNumber = %s"
+            self.execute_query(query, (new_balance, user_id, card_number))
+            return True, "Amount card number is update."
+        
         query = "INSERT INTO Accounts (CardNumber, AccountPassword, CVV2, Amount, UserID) VALUES (%s, %s, %s, %s, %s)"
         self.execute_query(query, (card_number, password, cvv2, amount, user_id))
-    
+        return True, "Your card is add to your account."
+
+
     def get_wallet_balance(self, user_id):
         query = "SELECT Balance FROM Wallets WHERE UserID = %s"
         result = self.get_single_result(query, (user_id,)) 
@@ -98,6 +109,7 @@ class Subscription:
         )
         self.cursor = self.conn.cursor()
         self.now = datetime.now()
+        self.wallet = Wallet()
     def get_single_result(self, query, values=None):
         self.cursor.execute(query, values)
         result = self.cursor.fetchone()
@@ -106,10 +118,13 @@ class Subscription:
     def execute_query(self, query, values=None):
         self.cursor.execute(query, values)
         self.conn.commit()
-
-    
-    def update_subscription(self, user_id, subscription_type):
-        wallet = Wallet()
+        
+    def check_expire_date(self, user_id):
+        query = "SELECT ExpiryDate FROM Subscriptions WHERE UserID = %s"
+        curr_subscription = self.get_single_result(query, (user_id,))
+        print(curr_subscription)   
+        
+    def check_subscription_type(self, subscription_type):
         if subscription_type == 'silver':
             cost = 100 
             expire_days = 90
@@ -120,20 +135,30 @@ class Subscription:
             expire_days = 180
             subscription_info = 'Premium'
             counts = 5
+        return cost, expire_days, subscription_info, counts
+
+    
+    def update_subscription(self, user_id, subscription_type):
+        cost, expire_days, subscription_info, counts = self.check_subscription_type(subscription_type)
         expire_date = self.now + timedelta(days=expire_days)
         query = "SELECT SubscriptionType FROM Subscriptions WHERE UserID = %s"
         curr_subscription = self.get_single_result(query, (user_id,))
-        if curr_subscription:
-            if wallet.get_transaction(user_id, cost, f'get {subscription_type}'):
-                query = "UPDATE Subscriptions SET SubscriptionType = %s, ExpiryDate = %s, SubscriptionInfo = %s , Counts = %s WHERE UserID = %s"
-                self.execute_query(query, (subscription_type, expire_date, subscription_info, counts, user_id))
-                return True
-        if wallet.get_transaction(user_id, cost, f'get {subscription_type}'):
+        result = self.wallet.get_transaction(user_id, cost, f'get {subscription_type}')
+        if curr_subscription and result[0]:
+            query = "UPDATE Subscriptions SET SubscriptionType = %s, ExpiryDate = %s, SubscriptionInfo = %s, Counts = %s WHERE UserID = %s"
+            self.execute_query(query, (subscription_type, expire_date, subscription_info, counts, user_id))
+            return True, "Your subscription is update."
+        elif result[0] == False:
+            return result
+        else:
             query = "INSERT INTO Subscriptions (UserID, SubscriptionType, ExpiryDate, SubscriptionInfo, Counts) VALUES (%s, %s, %s, %s, %s)"
             self.execute_query(query, (user_id, subscription_type, expire_date, subscription_info, counts))
-            
+            return True, "The subscription transaction  was completed successfully"
+        
+        
+        
+
     def view_subscription(self, user_id):
-        wallet = Wallet()
         query = "SELECT SubscriptionType FROM Subscriptions WHERE UserID = %s"
         return self.get_single_result(query, (user_id,))
         
@@ -153,16 +178,16 @@ print(wallet.get_wallet_balance('1'))
 '''
 
 # add_card_to_Accounts
-''' 
-wallet.add_card_to_Accounts('9876543210943355', 'Accountspass7', '777', 900.00, '3')
+'''
+print(wallet.add_card_to_Accounts('1234567890128845', 'Accountspass1', '111', 900.00, '1'))
 print(wallet.get_card_balance('1'))
 '''
 
-'''
+
 s = Subscription()
-s.update_subscription(1,'gold')
-print(s.view_subscription('1'))
-  '''
+print(s.update_subscription(1,'gold'))
+#print(s.view_subscription('1'))
+ 
         
 
-#print(wallet.get_wallet_balance('8'))
+
