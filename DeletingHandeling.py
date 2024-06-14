@@ -2,6 +2,9 @@ from ErrorHandeling import *
 from sql_connecter import *
 
 def Delete_Movie_Handler(MovieID : int):
+    '''
+    this function check if there is someone who bought ticket and return the ticketprice back to.    
+    '''
     querry = '''
             select movies.MovieID
             from movies
