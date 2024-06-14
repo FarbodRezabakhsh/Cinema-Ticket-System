@@ -126,24 +126,28 @@ class Subscription:
         self.cursor.execute(query, values)
         result = self.cursor.fetchone()
         return result[0] if result else None
+        
+    def get_second_result(self, query, values=None):
+        self.cursor.execute(query, values)
+        result = self.cursor.fetchone()
+        return result[1] if result else None
 
     def execute_query(self, query, values=None):
         self.cursor.execute(query, values)
         self.conn.commit()
         
-    def check_expire_date(self, user_id):
-        query = "SELECT ExpiryDate FROM Subscriptions WHERE UserID = %s"
-        expiry_date = self.get_single_result(query, (user_id,))
+    def check_expire_date_count(self, user_id):
+        query = "SELECT ExpiryDate, Counts FROM Subscriptions WHERE UserID = %s"
+        expiry_date_count = self.get_single_result(query, (user_id,))
+        count = self.get_second_result(query, (user_id,))
         today = datetime.now().date()
-        if expiry_date < today:
+        if expiry_date_count < today or count == 0:
             query = "DELETE FROM Subscriptions WHERE UserID = %s" 
             self.execute_query(query, (user_id,))
             return True, "Your subscription has expired"
-        return False, "Your subscription has not expired"        
+        return False, f"Your subscription has not expired and {count} count is available "         
         
 
-      
-    
 
     def check_subscription_type(self, subscription_type):
         if subscription_type == 'silver':
@@ -180,7 +184,7 @@ class Subscription:
         
 
     def view_subscription(self, user_id):
-        check_expire = self.check_expire_date(user_id)
+        check_expire = self.check_expire_date_count(user_id)
         if check_expire[0] == False:
             query = "SELECT SubscriptionType FROM Subscriptions WHERE UserID = %s"
             return f"Your Subscription Type is {self.get_single_result(query, (user_id,))} and {check_expire[1]}"
@@ -205,11 +209,11 @@ print(wallet.add_card_to_Accounts('1234567890128747', 'Accountspass1', '111', 50
 print(wallet.get_card_balance('1'))
 '''
 
-'''
+
 s = Subscription()
-print(s.update_subscription(1,'silver'))
+#print(s.update_subscription(1,'silver'))
 print(s.view_subscription('1'))
-'''
+
 
 
 
