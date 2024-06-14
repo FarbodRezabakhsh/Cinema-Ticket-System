@@ -10,7 +10,7 @@ class Auth:
     store and retrieve user information. 
     """ 
  
-    def init(self) -> None: 
+    def __init__(self) -> None: 
         """ 
         Initialize the Auth class. 
         """ 
