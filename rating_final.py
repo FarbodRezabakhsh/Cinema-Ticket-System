@@ -1,21 +1,16 @@
-import mysql
-import mysql.connector
+from sql_connecter import *
 
 class Rating:
-    def __init__(self,user_id, star_rating, movie_id):
-      
-        self.user_id = user_id
-        self.star_rating = star_rating
-        self.movie_id = movie_id
-    def define_Rating(self,user_id,star_rating,movie_id):
-      Insert INTO ratings(UserID, MovieID, StarRating) values (%s, %s, %s)
+    def __init__(self,UserID, MovieID, StarRating):
+        self.UserID = UserID
+        self.StarRating = StarRating
+        self.MovieID = MovieID
 
+    def define_Rating(self):
+        querry = '''
+        Insert INTO ratings(UserID, MovieID, StarRating)
+        values (%s, %s, %s)'''
 
-      val = (self.UserID, self.MovieID, StarRating)
+        val = (self.UserID, self.MovieID, self.StarRating)
 
-  
-      exec(query,val)
-
-
-      cursor.close()
-      conn.close()
+        Exe(querry, val)
