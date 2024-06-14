@@ -135,13 +135,14 @@ class Subscription:
         query = "SELECT ExpiryDate FROM Subscriptions WHERE UserID = %s"
         expiry_date = self.get_single_result(query, (user_id,))
         today = datetime.now().date()
- #       if expiry_date < today:
-            
-#DELETE FROM table_name WHERE condition; 
-         
-    
+        if expiry_date < today:
+            query = "DELETE FROM Subscriptions WHERE UserID = %s" 
+            self.execute_query(query, (user_id,))
+            return True, "Your subscription has expired"
+        return False, "Your subscription has not expired"        
+        
 
-  
+      
     
 
     def check_subscription_type(self, subscription_type):
@@ -179,10 +180,11 @@ class Subscription:
         
 
     def view_subscription(self, user_id):
-        result = self.check_expire_date(user_id)
-        query = "SELECT SubscriptionType FROM Subscriptions WHERE UserID = %s"
-        return self.get_single_result(query, (user_id,))
-        
+        check_expire = self.check_expire_date(user_id)
+        if check_expire[0] == False:
+            query = "SELECT SubscriptionType FROM Subscriptions WHERE UserID = %s"
+            return f"Your Subscription Type is {self.get_single_result(query, (user_id,))} and {check_expire[1]}"
+        return check_expire[1]
         
 wallet = Wallet()
 
@@ -198,10 +200,10 @@ print(wallet.get_wallet_balance('1'))
 '''
 
 # add_card_to_Accounts
-
-#print(wallet.add_card_to_Accounts('1234567890128747', 'Accountspass1', '111', 500, '1'))
-#print(wallet.get_card_balance('1'))
-
+'''
+print(wallet.add_card_to_Accounts('1234567890128747', 'Accountspass1', '111', 500, '1'))
+print(wallet.get_card_balance('1'))
+'''
 
 '''
 s = Subscription()
@@ -210,8 +212,9 @@ print(s.view_subscription('1'))
 '''
 
 
+
 # back_to_wallet
-print(wallet.back_to_wallet('1',500))
+#print(wallet.back_to_wallet('1',500))
 
         
 
