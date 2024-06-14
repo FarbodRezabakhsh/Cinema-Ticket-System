@@ -1,4 +1,6 @@
 import mysql
+import mysql.connector
+
 class Rating:
     def __init__(self,user_id, star_rating, movie_id):
       
