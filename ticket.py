@@ -131,21 +131,28 @@ class Subscription:
         self.cursor.execute(query, values)
         result = self.cursor.fetchone()
         return result[1] if result else None
+    def get_three_result(self, query, values=None):
+        self.cursor.execute(query, values)
+        result = self.cursor.fetchone()
+        return result[2] if result else None
 
     def execute_query(self, query, values=None):
         self.cursor.execute(query, values)
         self.conn.commit()
         
     def check_expire_date_count(self, user_id):
-        query = "SELECT ExpiryDate, Counts FROM Subscriptions WHERE UserID = %s"
+        query = "SELECT ExpiryDate, Counts, SubscriptionType FROM Subscriptions WHERE UserID = %s"
         expiry_date_count = self.get_single_result(query, (user_id,))
-        count = self.get_second_result(query, (user_id,))
-        today = datetime.now().date()
-        if expiry_date_count < today or count == 0:
-            query = "DELETE FROM Subscriptions WHERE UserID = %s" 
-            self.execute_query(query, (user_id,))
-            return True, "Your subscription has expired"
-        return False, f"Your subscription has not expired and {count} count is available "         
+        if expiry_date_count:
+            count = self.get_second_result(query, (user_id,))
+            subscription_type = self.get_three_result(query, (user_id,))
+            today = datetime.now().date()
+            if expiry_date_count < today or count == 0:
+                query = "DELETE FROM Subscriptions WHERE UserID = %s" 
+                self.execute_query(query, (user_id,))
+                return False, "Your subscription has expired"
+            return True, f"Your subscription has not expired and {count} count is available ", subscription_type, count   
+        return False, "Your subscription has expired"
         
 
 
@@ -181,15 +188,74 @@ class Subscription:
             return True, "The subscription transaction  was completed successfully"
         
         
+    def get_transaction_by_subscription(self, user_id, subscription_type, count, ticket_price):
+        new_count = count - 1
+        if new_count < 0:
+            query = "DELETE FROM Subscriptions WHERE UserID = %s" 
+            self.execute_query(query, (user_id,))
+            return False, "Your subscription has delete"
+            
+        elif subscription_type == 'silver':
+            new_ticket_price = ticket_price * 0.2
+            wallet.back_to_wallet(user_id,new_ticket_price)
+        elif subscription_type == 'gold':
+            new_ticket_price = ticket_price * 0.5
+            wallet.back_to_wallet(user_id,new_ticket_price)
+            
+            
+        query = "UPDATE Subscriptions SET Counts = %s WHERE UserID = %s"
+        self.execute_query(query, (new_count, user_id))
+        return True, "Your transaction by subscription is successfully."
         
-
     def view_subscription(self, user_id):
         check_expire = self.check_expire_date_count(user_id)
-        if check_expire[0] == False:
+        if check_expire[0] == True:
             query = "SELECT SubscriptionType FROM Subscriptions WHERE UserID = %s"
-            return f"Your Subscription Type is {self.get_single_result(query, (user_id,))} and {check_expire[1]}"
+            return True, f"Your Subscription Type is {self.get_single_result(query, (user_id,))} and {check_expire[1]}"
         return check_expire[1]
         
+
+
+class TicketSystem:
+    def __init__(self): 
+        self.conn = mysql.connector.connect(
+            user='root',
+            password='123456789',
+            host='localhost',
+            database='Ticket'
+        )
+        self.cursor = self.conn.cursor()
+        self.wallet = Wallet()
+        self.subscription = Subscription()
+    def get_single_result(self, query, values=None):
+        self.cursor.execute(query, values)
+        result = self.cursor.fetchone()
+        return result[0] if result else None
+        
+    def execute_query(self, query, values=None):
+        self.cursor.execute(query, values)
+        self.conn.commit()
+        
+    
+    def buy_ticket(self, salon_id, user_id, movie_id):
+        ticket_price = self.get_single_result("SELECT s.TicketPrice FROM Salons s JOIN Cinemas c ON s.SalonID = c.SalonID WHERE c.MovieID = %s AND c.SalonID = %s", (movie_id, salon_id))
+        
+        result = self.subscription.check_expire_date_count(user_id)
+        if result[0]:                                        
+            self.subscription.get_transaction_by_subscription(user_id, result[2], result[3], ticket_price)
+            get_ticket = self.wallet.get_transaction(user_id, ticket_price, 'get ticket')
+            if get_ticket[0]:
+                return True, "Ticket purchased successfully!"
+            return get_ticket
+        get_ticket = self.wallet.get_transaction(user_id, ticket_price, 'get ticket')
+        if get_ticket[0]:
+            return True, "Ticket purchased successfully!"
+        return get_ticket
+  
+
+
+
+
 wallet = Wallet()
 
 # charge_wallet
@@ -209,17 +275,19 @@ print(wallet.add_card_to_Accounts('1234567890128747', 'Accountspass1', '111', 50
 print(wallet.get_card_balance('1'))
 '''
 
-
+'''
 s = Subscription()
 #print(s.update_subscription(1,'silver'))
 print(s.view_subscription('1'))
-
+'''
 
 
 
 # back_to_wallet
 #print(wallet.back_to_wallet('1',500))
 
-        
+
+ticket = TicketSystem()
+print(ticket.buy_ticket('4','1','1'))
 
 
