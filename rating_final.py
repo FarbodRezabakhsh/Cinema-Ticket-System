@@ -6,10 +6,11 @@ class Rating:
         self.star_rating = star_rating
         self.movie_id = movie_id
     def define_Rating(self,user_id,star_rating,movie_id):
-      query='''insert into rating(user_id,star_rating,movie_id)
-      VALUES (%s, %s, %s)'''
+      Insert INTO ratings(UserID, MovieID, StarRating) values (%s, %s, %s)
 
-    val=(self.user_id,star_rating)   
+
+      val = (self.UserID, self.MovieID, StarRating)
+
   
       exec(query,val)
 
