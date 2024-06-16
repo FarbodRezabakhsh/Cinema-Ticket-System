@@ -15,7 +15,12 @@ class Connector_databas:
         self.cursor.execute(query, values)
         results = self.cursor.fetchall()
         return results if results else None
-
+        
+    def get_single_result(self, query, values=None):
+        self.cursor.execute(query, values)
+        result = self.cursor.fetchone()
+        return result[0] if result else None
+        
     def get_three_result(self, query, values=None):
         self.cursor.execute(query, values)
         result = self.cursor.fetchone()
@@ -209,20 +214,39 @@ class TicketSystem(Connector_databas):
         self.subscription = Subscription
         super().__init__()
     def buy_ticket(self, salon_id, user_id, movie_id):
-        ticket_price = self.get_single_result("SELECT s.TicketPrice FROM Salons s JOIN Cinemas c ON s.SalonID = c.SalonID WHERE c.MovieID = %s AND c.SalonID = %s", (movie_id, salon_id))
-        
-        result = self.subscription.check_expire_date_count(user_id)
-        if result[0]:                                        
-            self.subscription.get_transaction_by_subscription(user_id, result[2], result[3], ticket_price,'buy ticket with subscription')
-            get_ticket = self.wallet.get_transaction(user_id, ticket_price, 'get ticket with subscription')
+        if check_age_for_ticket(self, user_id, movie_id):
+            ticket_price = self.get_single_result("SELECT s.TicketPrice FROM Salons s JOIN Cinemas c ON s.SalonID = c.SalonID WHERE c.MovieID = %s AND c.SalonID = %s", (movie_id, salon_id))
+            
+            result = self.subscription.check_expire_date_count(user_id)
+            if result[0]:                                        
+                self.subscription.get_transaction_by_subscription(user_id, result[2], result[3], ticket_price,'buy ticket with subscription')
+                get_ticket = self.wallet.get_transaction(user_id, ticket_price, 'get ticket with subscription')
+                if get_ticket[0]:
+                    return True, "Ticket purchased successfully with subscription !"
+                return get_ticket
+            get_ticket = self.wallet.get_transaction(user_id, ticket_price, 'get ticket without subscription')
             if get_ticket[0]:
-                return True, "Ticket purchased successfully with subscription !"
+                return True, "Ticket purchased successfully without subscription!"
             return get_ticket
-        get_ticket = self.wallet.get_transaction(user_id, ticket_price, 'get ticket without subscription')
-        if get_ticket[0]:
-            return True, "Ticket purchased successfully without subscription!"
-        return get_ticket
-  
+        return False
+        
+    def age_calculator(self, user_id):
+        import datetime
+        query = "SELECT Birthday FROM Users WHERE UserID = %s"
+        birthdate = self.get_single_result(query, (user_id,))
+        birthdate = str(birthdate)
+        year,month, day = map(int, birthdate.split("-"))
+        today = datetime.date.today()
+        age = today.year - year - ((today.month, today.day) < (month, day))
+        return age
+    def check_age_for_ticket(self, user_id, movie_id):
+        age = self.age_calculator(user_id)
+        query = "SELECT AgeRating FROM Movies WHERE MovieID = %s"
+        age_rating = self.get_single_result(query, (movie_id,))
+        if age > age_rating:
+            return True
+        return False
+      
 
 
 
@@ -239,7 +263,7 @@ print(wallet.get_wallet_balance('1'))
 '''
 # get card Balance
 
-print(wallet.get_card_balance('1'))
+#print(wallet.get_card_balance('1'))
 # add_card_to_Accounts
 '''
 print(wallet.add_card_to_Accounts('123456789012870', 'Accountspass1', '111', 500, '1'))
@@ -258,8 +282,9 @@ print(s.view_subscription('1'))
 # back_to_wallet
 print(wallet.back_to_wallet('1',20))
 '''
-'''
+
 ticket = TicketSystem()
-print(ticket.buy_ticket('3','1','3'))
-'''
+#print(ticket.buy_ticket('3','1','3'))
+
+print(ticket.check_age_for_ticket('1','1'))
 
