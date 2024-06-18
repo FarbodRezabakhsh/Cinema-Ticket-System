@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 class Connector_databas:
     def __init__(self):
         self.now = datetime.now()
+        self.today = datetime.today()
         self.conn = mysql.connector.connect(
             user='root',
             password='123456789',
@@ -218,7 +219,6 @@ class Subscription(Wallet):
 
 class TicketSystem(Subscription):   
     def __init__(self):
-        
         super().__init__()
         
     def buy_ticket(self, user_id, salon_id, movie_id):
@@ -228,7 +228,6 @@ class TicketSystem(Subscription):
             check_birthdate = self.age_calculator(user_id)
             if check_birthdate[0]:
                 ticket_price//=2
-            print(ticket_price)
             result = self.check_expire_date_count(user_id)
             if result[0]:                                        
                 new_price = self.get_transaction_by_subscription(user_id, result[2], result[3], ticket_price)
@@ -272,15 +271,35 @@ class TicketSystem(Subscription):
         return True , "Your ticket is compleate"
 
     def cancel_ticket(self, ticket_id):
-        query = "SELECT UserID, TicketPrice FROM Tickets WHERE TicketID = %s"
-        user_id, ticketprice = self.get_second_result(query, (ticket_id,))
-        self.back_to_wallet(user_id, ticketprice)
-        query = "DELETE FROM Tickets WHERE TicketID = %s" 
-        self.execute_query(query, (ticket_id,))
-        return True ,"your ticket is delete and price get to your wallet"
+        query = "SELECT MovieID, UserID, TicketPrice FROM Tickets WHERE TicketID = %s"
+        movie_id = self.get_single_result(query, (ticket_id,))
+        if self.check_time_ticket(ticket_id, movie_id):
+            query = "SELECT UserID, TicketPrice FROM Tickets WHERE TicketID = %s"
+            user_id, ticketprice = self.get_second_result(query, (ticket_id,))
+            self.back_to_wallet(user_id, ticketprice)
+            query = "DELETE FROM Tickets WHERE TicketID = %s" 
+            self.execute_query(query, (ticket_id,))
+            return True ,"your ticket is delete and price get to your wallet"
+        return False, "Your ticket has expired. You can not cancel it."
         
-        
+    def check_time_ticket(self, ticket_id, movie_id):
+        import datetime
+      #  today_time = self.today
+        query = "SELECT M.ShowTime FROM Tickets T JOIN Movies M ON T.MovieID = M.MovieID WHERE T.TicketID = %s AND T.MovieID = %s"
+        ticket_time = self.get_single_result(query, (ticket_id, movie_id))
+        query = "SELECT C.ShowDate FROM Tickets T JOIN Cinemas C ON T.MovieID = C.MovieID AND T.SalonID = C.SalonID WHERE T.TicketID = %s AND T.MovieID = %s"
+        ticket_date = self.get_single_result(query, (ticket_id, movie_id))
+        t = f"{ticket_date} {ticket_time}"
+        ticket_datetime = datetime.datetime.strptime(t, '%Y-%m-%d %H:%M:%S')
+        if self.today.now() > ticket_datetime:
+            return False
+        return True
 
+
+
+
+     
+                
 ticket = TicketSystem()
 
 # add_card_to_Accounts
@@ -320,12 +339,14 @@ print(ticket.back_to_wallet(1,20))
 # get ticket
 
 
-print(ticket.buy_ticket(1,'3','3'))
+#print(ticket.buy_ticket(1,'3','3'))
 
 #print(ticket.check_age_for_ticket(1,'1'))
 
 
-#print(ticket.cancel_ticket(5))
+#print(ticket.cancel_ticket(10))
 
 
 #print(ticket.age_calculator(1))
+
+#print(ticket.check_time_ticket(1,3))
