@@ -128,7 +128,16 @@ class Wallet(Connector_databas):
                 return True, "Transaction is complete."
             return False, "Wallet balance is not enough."
         return False, "You do not have a wallet, please charge your wallet"
-
+    def create_wallet(self, user_id):
+        query = "SELECT Balance FROM Wallets WHERE UserID = %s"
+        curr_balance = self.get_single_result(query, (user_id,))
+        if curr_balance is None:
+            balance = 0
+            query = "INSERT INTO Wallets (Balance, UserID) VALUES (%s, %s)"
+            self.execute_query(query, (balance, user_id))
+            return True,"Your wallet is create."
+        return False, "This user is have a wallet. you can not create again." 
+        
 
    
 class Subscription(Wallet): 
@@ -350,3 +359,5 @@ print(ticket.back_to_wallet(1,20))
 #print(ticket.age_calculator(1))
 
 #print(ticket.check_time_ticket(1,3))
+
+print(ticket.create_wallet(3))
